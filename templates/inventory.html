@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block body_attrs %}data-page="inventory"{% endblock %}
 {% block title %}在庫管理 - 家庭管理{% endblock %}
 {% block content %}
 <h4 class="fw-bold mb-3"><i class="bi bi-box-seam text-info"></i> 在庫管理</h4>
@@ -11,7 +12,7 @@
     </div>
     <div class="collapse" id="addItemForm">
         <div class="card-body">
-            <form action="{{ url_for('inventory_add') }}" method="post">
+            <form id="add-inventory-form" novalidate>
                 <div class="row g-2">
                     <div class="col-12">
                         <input type="text" name="name" class="form-control" placeholder="食材名（例：卵）" required>
@@ -48,107 +49,8 @@
 </div>
 
 <!-- Category Filter -->
-{% if categories %}
-<div class="mb-3 d-flex flex-wrap gap-1">
-    <a href="{{ url_for('inventory') }}"
-       class="btn btn-sm {% if not selected_category %}btn-primary{% else %}btn-outline-primary{% endif %}">
-        すべて
-    </a>
-    {% for cat in categories %}
-    <a href="{{ url_for('inventory', category=cat) }}"
-       class="btn btn-sm {% if selected_category == cat %}btn-primary{% else %}btn-outline-secondary{% endif %}">
-        {{ cat }}
-    </a>
-    {% endfor %}
-</div>
-{% endif %}
+<div id="category-filter" class="mb-3 d-flex flex-wrap gap-1"></div>
 
 <!-- Inventory List -->
-{% if items %}
-<div class="row g-2">
-    {% for item in items %}
-    <div class="col-12">
-        <div class="card shadow-sm inventory-item {% if item['quantity'] <= 0 %}border-danger{% elif item['quantity'] <= 1 %}border-warning{% endif %}">
-            <div class="card-body py-2 px-3">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <span class="fw-bold">{{ item['name'] }}</span>
-                        {% if item['category'] %}
-                        <span class="badge bg-secondary ms-1 small">{{ item['category'] }}</span>
-                        {% endif %}
-                        <div class="text-muted small">
-                            更新: {{ item['updated_at'][:10] if item['updated_at'] else '不明' }}
-                        </div>
-                    </div>
-                    <div class="text-end">
-                        <span class="badge fs-6 {% if item['quantity'] <= 0 %}bg-danger{% elif item['quantity'] <= 1 %}bg-warning text-dark{% else %}bg-success{% endif %}">
-                            {{ item['quantity']|int if item['quantity'] == (item['quantity']|int) else item['quantity'] }} {{ item['unit'] }}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Update / Delete Controls -->
-                <div class="d-flex gap-2 mt-2 align-items-center">
-                    <form action="{{ url_for('inventory_update', item_id=item['id']) }}" method="post" class="d-flex gap-1 flex-grow-1">
-                        <button type="submit" name="delta" value="-1" class="btn btn-sm btn-outline-danger px-2">
-                            <i class="bi bi-dash"></i>
-                        </button>
-                        <input type="number" name="delta" class="form-control form-control-sm text-center"
-                               step="0.1" aria-label="数量調整（プラスで追加、マイナスで減算）" placeholder="±数量" style="min-width:70px">
-                        <button type="submit" name="delta" value="1" class="btn btn-sm btn-outline-success px-2">
-                            <i class="bi bi-plus"></i>
-                        </button>
-                    </form>
-                    <form action="{{ url_for('inventory_delete', item_id=item['id']) }}" method="post"
-                          onsubmit="return confirm('「{{ item['name'] }}」を削除しますか？')">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-{% else %}
-<div class="text-center text-muted py-5">
-    <i class="bi bi-box fs-1"></i>
-    <p class="mt-2">在庫アイテムがありません<br>上のフォームから追加してください</p>
-</div>
-{% endif %}
-{% endblock %}
-
-{% block scripts %}
-<script>
-// When the user types a custom delta and clicks +/-, the button's value takes precedence
-// via the standard form submission. The input field value is submitted only when
-// the form is submitted without clicking a named button (e.g. pressing Enter).
-// To support typed-in deltas via the +/- buttons, intercept their clicks:
-document.querySelectorAll('.inventory-item form').forEach(form => {
-    const minusBtn = form.querySelector('button[value="-1"]');
-    const plusBtn  = form.querySelector('button[value="1"]');
-    const input    = form.querySelector('input[name="delta"]');
-
-    function applyDelta(sign) {
-        const raw = parseFloat(input.value);
-        if (!isNaN(raw) && input.value.trim() !== '') {
-            const val = Math.abs(raw) * sign;
-            input.value = val;
-            // Remove button names temporarily so input wins
-            minusBtn.removeAttribute('name');
-            plusBtn.removeAttribute('name');
-            form.submit();
-        }
-        // If input is empty, let the button's own value="±1" handle it naturally
-    }
-
-    minusBtn && minusBtn.addEventListener('click', function(e) {
-        if (input.value.trim() !== '') { e.preventDefault(); applyDelta(-1); }
-    });
-    plusBtn  && plusBtn.addEventListener('click', function(e) {
-        if (input.value.trim() !== '') { e.preventDefault(); applyDelta(1); }
-    });
-});
-</script>
+<div id="inventory-list"></div>
 {% endblock %}

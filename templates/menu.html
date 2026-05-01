@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block body_attrs %}data-page="menu"{% endblock %}
 {% block title %}夕食メニュー - 家庭管理{% endblock %}
 {% block content %}
 <h4 class="fw-bold mb-3"><i class="bi bi-egg-fried text-warning"></i> 夕食メニュー</h4>
@@ -11,7 +12,7 @@
     </div>
     <div class="collapse" id="addMenuForm">
         <div class="card-body">
-            <form action="{{ url_for('menu_add') }}" method="post" id="menuForm">
+            <form id="add-menu-form" novalidate>
                 <div class="mb-2">
                     <label class="form-label small fw-bold">メニュー名 <span class="text-danger">*</span></label>
                     <input type="text" name="name" class="form-control" placeholder="例：肉じゃが" required>
@@ -61,51 +62,7 @@
 </div>
 
 <!-- Menu List -->
-{% if menus %}
-<div class="row g-2">
-    {% for m in menus %}
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-body py-2 px-3">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <div class="fw-bold">{{ m['name'] }}</div>
-                        {% if m['description'] %}
-                        <div class="text-muted small">{{ m['description'] }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="d-flex gap-1">
-                        <button class="btn btn-sm btn-outline-info view-recipe"
-                                data-id="{{ m['id'] }}"
-                                data-bs-toggle="modal" data-bs-target="#recipeModal">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                        <form action="{{ url_for('menu_delete', menu_id=m['id']) }}" method="post"
-                              onsubmit="return confirm('「{{ m['name'] }}」を削除しますか？')">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <form action="{{ url_for('menu_cook', menu_id=m['id']) }}" method="post" class="mt-2"
-                      onsubmit="return confirm('「{{ m['name'] }}」を今日作りますか？在庫から材料が差し引かれます。')">
-                    <button type="submit" class="btn btn-sm btn-warning w-100">
-                        <i class="bi bi-fire"></i> このメニューを今日作る
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-{% else %}
-<div class="text-center text-muted py-5">
-    <i class="bi bi-journal-x fs-1"></i>
-    <p class="mt-2">登録されたメニューがありません<br>上のフォームから追加してください</p>
-</div>
-{% endif %}
+<div id="menu-list"></div>
 
 <!-- Recipe Modal -->
 <div class="modal fade" id="recipeModal" tabindex="-1">
@@ -130,7 +87,8 @@
 
 {% block scripts %}
 <script>
-// Dynamic ingredient rows
+// Dynamic ingredient rows – add/remove handled here;
+// form submit and recipe modal are handled by app.js.
 document.getElementById('addIngredient').addEventListener('click', function() {
     const row = document.createElement('div');
     row.className = 'ingredient-row row g-1 mb-1';
@@ -160,49 +118,5 @@ document.getElementById('ingredientList').addEventListener('click', function(e) 
         }
     }
 });
-
-// Recipe modal
-document.querySelectorAll('.view-recipe').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const id = this.dataset.id;
-        const body = document.getElementById('recipeModalBody');
-        const title = document.getElementById('recipeModalTitle');
-        body.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div></div>';
-
-        fetch(`/menu/${id}`)
-            .then(r => r.json())
-            .then(data => {
-                title.textContent = data.name;
-                let html = '';
-                if (data.description) {
-                    html += `<p class="text-muted">${escHtml(data.description)}</p>`;
-                }
-                if (data.ingredients && data.ingredients.length > 0) {
-                    html += '<h6 class="fw-bold">材料</h6><ul class="list-group list-group-flush mb-3">';
-                    data.ingredients.forEach(ing => {
-                        html += `<li class="list-group-item py-1 px-2">${escHtml(ing.item_name)} ― ${ing.quantity} ${escHtml(ing.unit)}</li>`;
-                    });
-                    html += '</ul>';
-                }
-                if (data.instructions) {
-                    html += `<h6 class="fw-bold">調理手順</h6><p style="white-space:pre-wrap">${escHtml(data.instructions)}</p>`;
-                }
-                if (!html) html = '<p class="text-muted">詳細情報がありません</p>';
-                body.innerHTML = html;
-            })
-            .catch(() => {
-                body.innerHTML = '<p class="text-danger">読み込みに失敗しました</p>';
-            });
-    });
-});
-
-function escHtml(str) {
-    return String(str)
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;')
-        .replace(/'/g,'&#39;');
-}
 </script>
 {% endblock %}
