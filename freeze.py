@@ -67,14 +67,6 @@ app.config['FREEZER_DESTINATION'] = 'build'
 app.config['FREEZER_RELATIVE_URLS'] = True
 app.config['FREEZER_IGNORE_MIMETYPE_WARNINGS'] = True
 
-# strict_slashes=False にすることで /finance/ のようなトレイリングスラッシュ付き
-# リクエストが Flask にリダイレクトされず 200 で返り、Frozen-Flask が
-# build/finance/index.html として保存できるようになる。
-# これにより GitHub Pages がディレクトリインデックスとしてページを配信できる。
-for rule in app.url_map._rules:
-    rule.strict_slashes = False
-app.url_map.update()
-
 # with_no_argument_rules=False: デフォルトの URL 自動探索を無効化し、
 #   手動で trailing-slash 付き URL を登録する。
 # log_url_for=False: テンプレート内の url_for() 呼び出し（POST フォームの
