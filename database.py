@@ -5,9 +5,13 @@ from datetime import date
 DATABASE = os.path.join(os.path.dirname(__file__), 'webapp.db')
 
 
+def _dict_factory(cursor, row):
+    return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
+
+
 def get_db():
     conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row
+    conn.row_factory = _dict_factory
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
@@ -74,8 +78,8 @@ def init_db():
     ''')
 
     # Insert default accounts only if they don't exist
-    c.execute("SELECT COUNT(*) FROM financial_accounts")
-    if c.fetchone()[0] == 0:
+    c.execute("SELECT COUNT(*) as cnt FROM financial_accounts")
+    if c.fetchone()['cnt'] == 0:
         c.executemany(
             "INSERT INTO financial_accounts (name, balance, account_type) VALUES (?, ?, ?)",
             [
