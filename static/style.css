@@ -1,0 +1,128 @@
+/* ─── Base ─── */
+body {
+    background-color: #f4f6f9;
+    font-size: 0.95rem;
+}
+
+/* ─── Balance Cards ─── */
+.balance-card {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.balance-card.bank {
+    background: linear-gradient(135deg, #e8f4fd, #cfe2ff);
+    border-left: 4px solid #0d6efd;
+}
+.balance-card.cash {
+    background: linear-gradient(135deg, #e8fce8, #d1e7dd);
+    border-left: 4px solid #198754;
+}
+.balance-card.card-type {
+    background: linear-gradient(135deg, #fef9e7, #fff3cd);
+    border-left: 4px solid #ffc107;
+}
+.balance-card .fw-bold {
+    font-size: 1rem;
+}
+
+/* ─── Quick Link Cards ─── */
+.quick-link-card {
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    transition: transform 0.15s, box-shadow 0.15s;
+    color: #212529;
+    background: #fff;
+}
+.quick-link-card:hover, .quick-link-card:active {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* ─── Inventory Items ─── */
+.inventory-item {
+    border-radius: 10px;
+}
+.inventory-item.border-danger {
+    border-left: 4px solid #dc3545 !important;
+}
+.inventory-item.border-warning {
+    border-left: 4px solid #ffc107 !important;
+}
+
+/* ─── Cards general ─── */
+.card {
+    border-radius: 10px;
+}
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    background-color: #f8f9fa;
+}
+
+/* ─── Bottom nav (mobile) ─── */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 58px;
+    background: #fff;
+    border-top: 1px solid #dee2e6;
+    z-index: 1030;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+}
+.bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #6c757d;
+    font-size: 0.65rem;
+    padding: 4px 0;
+    transition: color 0.15s;
+}
+.bottom-nav-item i {
+    font-size: 1.35rem;
+    line-height: 1;
+}
+.bottom-nav-item.active {
+    color: #0d6efd;
+}
+.bottom-nav-item:hover {
+    color: #0d6efd;
+}
+.pb-bottom-nav {
+    height: 62px;
+}
+
+/* ─── Tables ─── */
+.table > :not(caption) > * > * {
+    padding: 0.4rem 0.5rem;
+}
+
+/* ─── Forms ─── */
+.form-control, .form-select {
+    border-radius: 8px;
+}
+.btn {
+    border-radius: 8px;
+}
+
+/* ─── Alerts ─── */
+.alert {
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+
+/* ─── Navbar ─── */
+.navbar-brand {
+    font-size: 1.1rem;
+}
+
+/* ─── Modal ─── */
+.modal-content {
+    border-radius: 14px;
+}

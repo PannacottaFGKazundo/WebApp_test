@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}ダッシュボード - 家庭管理{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3"><i class="bi bi-speedometer2 text-primary"></i> ダッシュボード</h4>
+
+<!-- Balance Cards -->
+<div class="row g-2 mb-3">
+    <div class="col-4">
+        <div class="card text-center balance-card bank h-100">
+            <div class="card-body py-2 px-1">
+                <div class="small text-muted">口座残高</div>
+                <div class="fw-bold fs-6">¥{{ "{:,.0f}".format(account_map.get('bank', {}).get('balance', 0)) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card text-center balance-card cash h-100">
+            <div class="card-body py-2 px-1">
+                <div class="small text-muted">財布残高</div>
+                <div class="fw-bold fs-6">¥{{ "{:,.0f}".format(account_map.get('cash', {}).get('balance', 0)) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card text-center balance-card card-type h-100">
+            <div class="card-body py-2 px-1">
+                <div class="small text-muted">カード利用額</div>
+                <div class="fw-bold fs-6">¥{{ "{:,.0f}".format(account_map.get('card', {}).get('balance', 0)) }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Recent transactions -->
+    <div class="col-12 col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <span class="fw-bold"><i class="bi bi-clock-history text-primary"></i> 最近の取引</span>
+                <a href="{{ url_for('finance') }}" class="btn btn-sm btn-outline-primary">もっと見る</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_txns %}
+                <ul class="list-group list-group-flush">
+                    {% for t in recent_txns %}
+                    <li class="list-group-item py-2 px-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="small fw-bold">{{ t['description'] or t['transaction_type'] }}</div>
+                                <div class="text-muted" style="font-size:0.75rem">{{ t['date'] }} ・ {{ t['account_name'] or '不明' }}</div>
+                            </div>
+                            <div class="fw-bold {% if t['transaction_type'] in ['income','salary','deposit'] %}text-success{% else %}text-danger{% endif %}">
+                                ¥{{ "{:,.0f}".format(t['amount']) }}
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted text-center py-3 mb-0">取引がありません</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Low stock -->
+    <div class="col-12 col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <span class="fw-bold"><i class="bi bi-exclamation-triangle text-warning"></i> 在庫不足</span>
+                <a href="{{ url_for('inventory') }}" class="btn btn-sm btn-outline-warning">在庫管理</a>
+            </div>
+            <div class="card-body p-0">
+                {% if low_stock %}
+                <ul class="list-group list-group-flush">
+                    {% for item in low_stock %}
+                    <li class="list-group-item py-2 px-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>{{ item['name'] }}
+                                {% if item['category'] %}<span class="badge bg-secondary ms-1">{{ item['category'] }}</span>{% endif %}
+                            </span>
+                            <span class="badge {% if item['quantity'] <= 0 %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                {{ item['quantity'] | int if item['quantity'] == item['quantity']|int else item['quantity'] }} {{ item['unit'] }}
+                            </span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-success text-center py-3 mb-0"><i class="bi bi-check-circle"></i> 在庫は十分です</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick links -->
+<div class="row g-2 mt-2">
+    <div class="col-6">
+        <a href="{{ url_for('finance') }}" class="card text-decoration-none text-center quick-link-card">
+            <div class="card-body py-3">
+                <i class="bi bi-cash-coin fs-2 text-success"></i>
+                <div class="mt-1 fw-bold">家計管理</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6">
+        <a href="{{ url_for('inventory') }}" class="card text-decoration-none text-center quick-link-card">
+            <div class="card-body py-3">
+                <i class="bi bi-box-seam fs-2 text-info"></i>
+                <div class="mt-1 fw-bold">在庫管理</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6">
+        <a href="{{ url_for('menu') }}" class="card text-decoration-none text-center quick-link-card">
+            <div class="card-body py-3">
+                <i class="bi bi-egg-fried fs-2 text-warning"></i>
+                <div class="mt-1 fw-bold">夕食メニュー</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6">
+        <a href="{{ url_for('finance') }}#addTransaction" class="card text-decoration-none text-center quick-link-card">
+            <div class="card-body py-3">
+                <i class="bi bi-plus-circle fs-2 text-primary"></i>
+                <div class="mt-1 fw-bold">取引記録</div>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

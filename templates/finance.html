@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}家計管理 - 家庭管理{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3"><i class="bi bi-cash-coin text-success"></i> 家計管理</h4>
+
+<!-- Balance Cards -->
+<div class="row g-2 mb-3">
+    <div class="col-4">
+        <div class="card text-center balance-card bank">
+            <div class="card-body py-2 px-1">
+                <div class="small text-muted">口座残高</div>
+                <div class="fw-bold">¥{{ "{:,.0f}".format(account_map.get('bank', {}).get('balance', 0)) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card text-center balance-card cash">
+            <div class="card-body py-2 px-1">
+                <div class="small text-muted">財布現金</div>
+                <div class="fw-bold">¥{{ "{:,.0f}".format(account_map.get('cash', {}).get('balance', 0)) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card text-center balance-card card-type">
+            <div class="card-body py-2 px-1">
+                <div class="small text-muted">カード利用額</div>
+                <div class="fw-bold">¥{{ "{:,.0f}".format(account_map.get('card', {}).get('balance', 0)) }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Transaction Form -->
+<div class="card shadow-sm mb-3" id="addTransaction">
+    <div class="card-header py-2 fw-bold">
+        <i class="bi bi-plus-circle text-primary"></i> 取引を記録する
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('add_transaction') }}" method="post">
+            <div class="mb-2">
+                <label class="form-label small fw-bold">取引種類</label>
+                <select name="transaction_type" class="form-select" id="txnType" required>
+                    <option value="shopping_cash">買い出し（現金）</option>
+                    <option value="shopping_card">買い出し（カード）</option>
+                    <option value="withdrawal">引き出し</option>
+                    <option value="deposit">預入</option>
+                    <option value="salary">給与振り込み</option>
+                    <option value="other">その他</option>
+                </select>
+            </div>
+
+            <!-- "その他" extra fields -->
+            <div id="otherFields" class="d-none">
+                <div class="mb-2">
+                    <label class="form-label small fw-bold">口座</label>
+                    <select name="other_account_id" class="form-select">
+                        {% for a in all_accounts %}
+                        <option value="{{ a['id'] }}">{{ a['name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small fw-bold">方向</label>
+                    <select name="other_direction" class="form-select">
+                        <option value="income">入金（残高を増やす）</option>
+                        <option value="expense">出金（残高を減らす）</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-2">
+                <label class="form-label small fw-bold">金額（円）</label>
+                <input type="number" name="amount" class="form-control" min="0.01" step="1" placeholder="0" required>
+            </div>
+            <div class="mb-2">
+                <label class="form-label small fw-bold">説明</label>
+                <input type="text" name="description" class="form-control" placeholder="説明（任意）">
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-bold">日付</label>
+                <input type="date" name="date" class="form-control" value="{{ today }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-save"></i> 記録する
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Transaction History -->
+<div class="card shadow-sm">
+    <div class="card-header py-2 fw-bold">
+        <i class="bi bi-clock-history text-secondary"></i> 取引履歴（直近20件）
+    </div>
+    <div class="card-body p-0">
+        {% if transactions %}
+        <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>日付</th>
+                        <th>内容</th>
+                        <th>口座</th>
+                        <th class="text-end">金額</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td class="text-nowrap small">{{ t['date'] }}</td>
+                        <td class="small">{{ t['description'] or t['transaction_type'] }}</td>
+                        <td class="small text-muted">{{ t['account_name'] or '不明' }}</td>
+                        <td class="text-end fw-bold small
+                            {% if t['transaction_type'] in ['income','salary','deposit'] %}text-success
+                            {% else %}text-danger{% endif %}">
+                            ¥{{ "{:,.0f}".format(t['amount']) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center py-3 mb-0">取引がありません</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('txnType').addEventListener('change', function() {
+    const otherFields = document.getElementById('otherFields');
+    otherFields.classList.toggle('d-none', this.value !== 'other');
+});
+</script>
+{% endblock %}
