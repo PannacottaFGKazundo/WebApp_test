@@ -81,8 +81,7 @@ function fmt(n) {
 }
 
 function fmtQty(q) {
-    var n = Number(q);
-    return Number.isInteger(n) ? String(n) : String(n);
+    return String(Number(q));
 }
 
 function showAlert(msg, type) {
