@@ -32,7 +32,7 @@ def index():
 # ──────────────────────────────────────────────
 # Finance
 # ──────────────────────────────────────────────
-@app.route('/finance')
+@app.route('/finance/')
 def finance():
     accounts = db.get_accounts()
     account_map = {a['account_type']: a for a in accounts}
@@ -131,7 +131,7 @@ def add_transaction():
 # ──────────────────────────────────────────────
 # Inventory
 # ──────────────────────────────────────────────
-@app.route('/inventory')
+@app.route('/inventory/')
 def inventory():
     category_filter = request.args.get('category', '')
     items = db.get_inventory_items(category_filter if category_filter else None)
@@ -247,7 +247,7 @@ def inventory_delete(item_id):
 # ──────────────────────────────────────────────
 # Menu
 # ──────────────────────────────────────────────
-@app.route('/menu')
+@app.route('/menu/')
 def menu():
     menus = db.get_menus()
     return render_template('menu.html', menus=menus)
