@@ -4,3 +4,4 @@ __pycache__/
 webapp.db
 *.db
 .env
+build/
